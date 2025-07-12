@@ -31,9 +31,9 @@ vrrp_instance VI_1 {
   virtual_router_id 55
   priority 150
   advert_int 1
-  unicast_src_ip 192.168.56.101 # IP of server01
+  unicast_src_ip 192.168.56.2 # IP of server01
   unicast_peer {
-    192.168.56.102 # IP of server02
+    192.168.56.3 # IP of server02
   }
 
   authentication {
@@ -42,7 +42,7 @@ vrrp_instance VI_1 {
   }
 
   virtual_ipaddress {
-    192.168.56.100/24 # The virtual IP address
+    192.168.56.4/24 # The virtual IP address
   }
 }
 ```
@@ -58,9 +58,9 @@ vrrp_instance VI_1 {
   virtual_router_id 55
   priority 100
   advert_int 1
-  unicast_src_ip 192.168.56.102 # IP of server02
+  unicast_src_ip 192.168.56.3 # IP of server02
   unicast_peer {
-    192.168.56.101 # IP of server01
+    192.168.56.2 # IP of server01
   }
 
   authentication {
@@ -69,7 +69,7 @@ vrrp_instance VI_1 {
   }
 
   virtual_ipaddress {
-    192.168.56.100/24 # The virtual IP address
+    192.168.56.4/24 # The virtual IP address
   }
 }
 ```
