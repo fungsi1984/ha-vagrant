@@ -1,0 +1,3 @@
+- set ip address with keepalived
+- set load balancer with haproxy
+- set apache and php

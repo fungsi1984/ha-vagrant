@@ -19,6 +19,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # server02.vm.provision :shell, path: "resources/provision.sh"
   end
 
+  config.vm.define "db01" do |db01|
+    db01.vm.box = "ubuntu/jammy64"
+    db01.vm.hostname = "db01"
+    db01.vm.network :private_network, ip: "192.168.56.5", auto_config: true
+    # server02.vm.provision :shell, path: "resources/provision.sh"
+  end
+
+  config.vm.define "db02" do |db02|
+    db02.vm.box = "ubuntu/jammy64"
+    db02.vm.hostname = "db02"
+    db02.vm.network :private_network, ip: "192.168.56.6", auto_config: true
+    # server02.vm.provision :shell, path: "resources/provision.sh"
+  end
+
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--cpus", "1"]
     # You can also keep your memory setting if needed
