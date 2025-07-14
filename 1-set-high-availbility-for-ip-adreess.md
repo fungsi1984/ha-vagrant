@@ -18,7 +18,10 @@ sudo apt install -y keepalived libipset13
 
 ## Configuration
 
-Next, configure `keepalived` on each server by editing the `/etc/keepalived/keepalived.conf` file.
+Next, configure `keepalived` on each server by editing the file.
+```
+sudo nano /etc/keepalived/keepalived.conf
+```
 
 ### Master Server (server01)
 
@@ -103,10 +106,16 @@ vrrp_instance VI_1 {
     From either server or your host machine, ping the virtual IP address. You should get a response.
 
     ```bash
-    ping 192.168.56.100
+    ping 192.168.56.4
     ```
 
     You can also run `ip a` on both servers to see which one has the virtual IP address assigned to its interface.
+
+    ```
+    notes
+    
+    always use `ip -br -c a`, to check ip
+    ```
 
 ## Failover Testing
 

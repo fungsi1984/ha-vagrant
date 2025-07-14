@@ -2,6 +2,7 @@
 
 ### server01 & server02
 - sudo apt install haproxy
+- sudo mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.default
 - sudo nano /etc/haproxy/haproxy.cfg
 
 global
@@ -70,12 +71,5 @@ $UDPServerAddress 127.0.0.1
 - sudo systemctl restart haproxy
 
 - 192.168.56.3/haproxy/stats
-
-- server01 still not connected
-```
-vagrant@server01:~$ ip -br -c a
-lo               UNKNOWN        127.0.0.1/8 ::1/128 
-enp0s3           UP             10.0.2.15/24 metric 100 fd17:625c:f037:2:17:d8ff:fe8d:76f6/64 fe80::17:d8ff:fe8d:76f6/64 
-enp0s8           UP             192.168.56.2/24 192.168.56.4/24 fe80::a00:27ff:feb2:967d/64 
-
-```
+- login with admin, pass admin
+- it is gonna connected with webserver down, because we still not installing apache2 and php

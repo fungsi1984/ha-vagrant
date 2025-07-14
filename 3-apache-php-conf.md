@@ -8,6 +8,7 @@
 change listen from 80 into 8080
 ```
 - sudo systemctl restart apache2
+- sudo systemctl restart haproxy
 - sudo ss -tulnp | less
 
 - check again our server01 up and server02 down
