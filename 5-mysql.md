@@ -465,3 +465,32 @@ MariaDB [(none)]> show databases;
 - free -h
 - sudo ss -tulnp | grep -E '4567|3306'
 - check if galera works or not, sudo mysql -e "SHOW STATUS LIKE 'wsrep%';" | grep -E 'ready|cluster_size|provider'
+
+
+## more on passwords and removing users
+- mysql -u root -p -e "SELECT User,Host FROM mysql.user;"
+- mysql -u root -p -e "SET PASSWORD FOR 'root'@'127.0.0.1' PASSWORD('new_pwd');"
+- mysql -u root -p -e "SET PASSWORD FOR 'root'@'localhost' PASSWORD('new_pwd');"
+- mysql -u root -p -e "DROP USER 'root'@'%';" 
+- mysql -u root -p -e "DROP USER ''@'localhost';"
+- mysqladmin -u root -p flush-privileges 
+
+## create user
+- mysql -u root -p -e "GRANT USAGE ON *.* TO 'abi'@'localhost' IDENTIFIED BY 'Rover#My_1st_Dog&Not_Yours!';" 
+    - 'Rover#My_1st_Dog&Not_Yours!' this gonna be our password
+- mysql -u root -p -e "GRANT SELECT ON *.* TO 'abi'@'localhost';"
+    - it means we could just using 'select' nothing more than that
+- mysql -u root -p -e "SHOW GRANTS FOR 'abi@'localhost' \G" 
+    - "SHOW" to see the privileges granted to a user
+- mysql -u root -p -e "GRANT ALL ON *.* TO 'abi'@'localhost';" 
+    - "ALL", gives all priviledges
+- mysql -u abi -p
+    - connect into server
+
+### backup
+- mysqldump --user='abi' -p \ 
+wordpress > wordpress.sql 
+
+### restore
+- mysql --user='abi' -p \ 
+wordpress < wordpress.sql
