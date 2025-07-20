@@ -78,8 +78,11 @@ wsrep_node_address=192.168.56.6
 
 - sudo mysql, fail 
 
+# FAIL, we gonna start from scratch
+
 ### sudo apt install mariadb-server galera-4
 
+- sudo apt update && sudo apt install mariadb-server
 - cd /etc/mysql
 - sudo mv my.cnf my.cnf.default
 - sudo vi my.cnf
@@ -193,6 +196,7 @@ sudo dpkg --configure -a
 
 - again fresh start
 ```
+## FAIL, START FROM SCRATCH
 sudo apt install mariadb-server galera-4
 sudo nano /etc/mysql/mariadb.conf.d/60-galera.cnf
 cd  /etc/mysql/mariadb.conf.d/
@@ -368,8 +372,9 @@ FLUSH PRIVILEGES;
 
 ```
 
-- again we nuke
-sudo apt install mariadb-server
+## AGAIN, WE NUKE EVERYTHING
+sudo apt update && sudo apt install -y mariadb-server
+sudo mv /etc/mysql/mariadb.conf.d/60-galera.cnf /etc/mysql/mariadb.conf.d/60-galera.cnf.default
 sudo nano /etc/mysql/mariadb.conf.d/60-galera.cnf
 
 
@@ -410,7 +415,7 @@ sudo mysql -u root -p -e "show status like 'wrep_cluster_size'"
 sudo mysql
 ```
 FLUSH PRIVILEGES;
-ALTER USER 'root'@'localhost' IDENTIFIED BY 'new_password';
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'pass';
 EXIT;
 ```
 mysql_secure_installation
@@ -450,6 +455,12 @@ MariaDB [(none)]> show databases;
 
 
 ### Set ha proxy for mysql
+- sudo mysql -p
+```
+CREATE USER 'haproxy_check'@'%' IDENTIFIED BY '';
+FLUSH PRIVILEGES;
+```
+
 
 sudo vi /etc/haproxy/haproxy.cfg
 
@@ -461,6 +472,7 @@ global
 
 defaults
     log     global
+    mode    http
     option  dontlognull
     retries 3
     option redispatch
@@ -468,17 +480,12 @@ defaults
     timeout client  50000
     timeout server  50000
 
+# ======== WEB TRAFFIC ========
 frontend http
     bind *:80
     mode http
     option httplog
     default_backend webservers
-
-# New frontend for MySQL traffic
-frontend mysql_frontend
-    bind *:3306
-    mode tcp
-    default_backend observers
 
 backend webservers
     mode http
@@ -493,15 +500,91 @@ backend webservers
     server server01 192.168.56.2:8080 check cookie server01
     server server02 192.168.56.3:8080 check cookie server02
 
-backend observers
+# ======== DATABASE TRAFFIC ========
+frontend mysql_frontend
+    bind *:3306
+    mode tcp
+    option tcplog
+    default_backend mysql_servers
+
+backend mysql_servers
     mode tcp
     balance leastconn
-    option httpchk
-    server db01 192.168.56.5:3306 check port 9200 inter 12000 rise 3 fall 3
-    server db02 192.168.12.62:3306 check port 9200 inter 12000 rise 3 fall 3 backup
-    server db03 192.168.12.63:3306 check port 9200 inter 12000 rise 3 fall 3 backup
+    option mysql-check user haproxy_check
+    server db01 192.168.56.5:3306 check
+    server db02 192.168.56.6:3306 check backup
+    server db03 192.168.56.7:3306 check backup
+```
+sudo ufw allow 3306/tcp  # MySQL traffic
+sudo ufw allow 80/tcp   # HTTP traffic
+
+sudo apt update && sudo apt install -y xinetd
+
+sudo nano /etc/xinetd.d/galera-healthcheck
+
+service galera-healthcheck
+{
+    port        = 9200
+    disable     = no
+    socket_type = stream
+    protocol    = tcp
+    wait        = no
+    user        = nobody
+    group       = nogroup
+    server      = /usr/local/bin/clustercheck
+    type        = UNLISTED
+    flags       = REUSE
+    only_from   = 127.0.0.1 192.168.56.0/24  # Allow from HAProxy servers
+    per_source  = UNLIMITED
+}
+
+echo "galera-healthcheck 9200/tcp" | sudo tee -a /etc/services
+
+sudo systemctl restart xinetd
+
+### somehow it works with haproxy
+sudo nano /etc/mysql/mariadb.conf.d/60-galera.cnf 
 ```
 
+[server]
+
+[mysqld]
+
+[galera]
+wsrep_on=ON
+wsrep_provider=/usr/lib/galera/libgalera_smm.so
+wsrep_cluster_name="my_galera_cluster"
+wsrep_cluster_address="gcomm://192.168.56.5,192.168.56.6"
+wsrep_sst_method=rsync
+wsrep_node_address="192.168.56.6"  # Change to 192.168.56.6 on db02!
+wsrep_node_name="db02"             # Change to "db02" on db02!
+binlog_format=ROW
+default_storage_engine=InnoDB
+innodb_autoinc_lock_mode=2
+bind-address=0.0.0.0
+wsrep_provider_options="gcache.size=1G; gcs.fc_limit=128"
+
+```
+
+```
+this correct configuration but not tested
+[server]
+
+[mysqld]
+bind-address = 0.0.0.0  # Critical for HAProxy access
+
+[galera]
+wsrep_on=ON
+wsrep_provider=/usr/lib/galera/libgalera_smm.so
+wsrep_cluster_name="my_galera_cluster"
+wsrep_cluster_address="gcomm://192.168.56.5,192.168.56.6"
+wsrep_sst_method=rsync
+wsrep_node_address="192.168.56.6"  # Must match node's actual IP
+wsrep_node_name="db02"            # Must be unique per node
+binlog_format=ROW
+default_storage_engine=InnoDB     # Required for Galera
+innodb_autoinc_lock_mode=2        # Required for Galera
+```
 
 ### utilities 
 - sudo tail -n 50 /var/log/mysql/error.log
