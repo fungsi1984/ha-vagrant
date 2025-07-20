@@ -5,3 +5,7 @@
 ### Design High Availability 
 ![Load Balancer](architecture/cloud-http-load-balancer.jpg)
 ![Mysql - Load Balancer](architecture/cloud-http-and-mysql-load-balancer.jpg)
+
+### Backup design
+![Design](architecture/backup.png)
+![again](architecture/image.png)

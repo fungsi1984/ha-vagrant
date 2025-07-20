@@ -449,6 +449,58 @@ MariaDB [(none)]> show databases;
 | mysql              |
 
 
+### Set ha proxy for mysql
+
+sudo vi /etc/haproxy/haproxy.cfg
+
+```
+global
+    log 127.0.0.1 local0 notice
+    user haproxy
+    group haproxy
+
+defaults
+    log     global
+    option  dontlognull
+    retries 3
+    option redispatch
+    timeout connect  5000
+    timeout client  50000
+    timeout server  50000
+
+frontend http
+    bind *:80
+    mode http
+    option httplog
+    default_backend webservers
+
+# New frontend for MySQL traffic
+frontend mysql_frontend
+    bind *:3306
+    mode tcp
+    default_backend observers
+
+backend webservers
+    mode http
+    stats enable
+    stats uri /haproxy/stats
+    stats auth admin:admin
+    stats hide-version
+    balance roundrobin
+    option httpclose
+    option forwardfor
+    cookie SRVNAME insert
+    server server01 192.168.56.2:8080 check cookie server01
+    server server02 192.168.56.3:8080 check cookie server02
+
+backend observers
+    mode tcp
+    balance leastconn
+    option httpchk
+    server db01 192.168.56.5:3306 check port 9200 inter 12000 rise 3 fall 3
+    server db02 192.168.12.62:3306 check port 9200 inter 12000 rise 3 fall 3 backup
+    server db03 192.168.12.63:3306 check port 9200 inter 12000 rise 3 fall 3 backup
+```
 
 
 ### utilities 
@@ -465,7 +517,7 @@ MariaDB [(none)]> show databases;
 - free -h
 - sudo ss -tulnp | grep -E '4567|3306'
 - check if galera works or not, sudo mysql -e "SHOW STATUS LIKE 'wsrep%';" | grep -E 'ready|cluster_size|provider'
-
+- SHOW PROCESSLIST\G;
 
 ## more on passwords and removing users
 - mysql -u root -p -e "SELECT User,Host FROM mysql.user;"

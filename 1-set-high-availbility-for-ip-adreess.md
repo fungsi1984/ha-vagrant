@@ -128,3 +128,7 @@ sudo systemctl stop keepalived.service
 Now, ping the virtual IP address again. You should still get a response, as `server02` should have taken over as the master. If you run `ip a` on `server02`, you will see the virtual IP address assigned to its interface.
 
 To restore the original state, start the `keepalived` service on `server01` again. Since it has a higher priority, it will become the master again.
+
+
+### Tools cli
+- systemctl list-units --type=service --state=running
