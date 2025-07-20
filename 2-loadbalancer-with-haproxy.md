@@ -39,18 +39,18 @@ backend webservers
     server server01 192.168.56.2:8080 check cookie server01
     server server02 192.168.56.3:8080 check cookie server02
 
-<!-- frontend sql
+frontend sql
     bind *:3306
     mode tcp
     option tcplog
-    default_backend dbservers -->
+    default_backend dbservers
 
-<!-- backend dbservers
+backend dbservers
     balance leastconn
     option httpchk
-    server db01 192.168.12.61:3306 check port 9200 inter 12000 rise 3 fall 3
-    server db02 192.168.12.62:3306 check port 9200 inter 12000 rise 3 fall 3 backup
-    server db03 192.168.12.63:3306 check port 9200 inter 12000 rise 3 fall 3 backup -->
+    server db01 192.168.56.5:3306 check port 9200 inter 12000 rise 3 fall 3
+    server db02 192.168.56.6:3306 check port 9200 inter 12000 rise 3 fall 3 backup
+    server db03 192.168.56.7:3306 check port 9200 inter 12000 rise 3 fall 3 backup
 
 - sudo nano /etc/default/haproxy
 ```
@@ -59,6 +59,10 @@ change into ENABLED=1
 
 - cd /etc/rsyslog.d/
 - sudo nano udp-localhost.conf
+
+or 
+
+- sudo nano /etc/rsyslog.d/udp-localhost.conf
 ```
 $ModLoad imudp
 $UDPServerRun 514

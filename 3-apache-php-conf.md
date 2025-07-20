@@ -4,6 +4,9 @@
 
 - cd /etc/apache2/
 - sudo vi ports.conf 
+or 
+
+- sudo vi /etc/apache2/ports.conf
 ```
 change listen from 80 into 8080
 ```
@@ -22,6 +25,9 @@ change listen from 80 into 8080
 - cd /etc/apache2/sites-available/
 - sudo vi wordpress.conf
 
+or 
+
+- sudo vi /etc/apache2/sites-available/wordpress.conf
 ```
 LogFormat "%{X-Forwarded-For}i %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" haproxy_combined
 

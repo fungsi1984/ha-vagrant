@@ -92,6 +92,12 @@ server02-private:/var-www /var/www glusterfs defaults,_netdev,fetch-attempts= 5 
 - sudo mv /var/www{,.orig}
 - sudo mkdir /var/www
 - sudo mount /var/www
+- likely gonna fail
+- sudo systemctl start glusterd
+- sudo umount -l /var/www 
+- sudo umount -f /var/www 
+- sudo mount -t glusterfs server01:/var-www /var/www
+- sudo mkdir -p /var/www 
 - sudo systemctl start apache2
 - df -h
 - sudo touch /var/www/from-server01

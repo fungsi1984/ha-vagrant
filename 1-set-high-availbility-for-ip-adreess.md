@@ -12,7 +12,7 @@ This project demonstrates how to set up a high-availability (HA) system using `k
 First, install `keepalived` and `libipset13` on both `server01` and `server02`:
 
 ```bash
-sudo apt update
+sudo apt update &&
 sudo apt install -y keepalived libipset13
 ```
 
@@ -54,6 +54,7 @@ vrrp_instance VI_1 {
 
 On `server02`, use the following configuration. This sets the server as the `BACKUP` with a lower priority.
 
+sudo nano /etc/keepalived/keepalived.conf
 ```
 vrrp_instance VI_1 {
   state BACKUP
