@@ -1,6 +1,7 @@
 - set ip address with keepalived
 - set load balancer with haproxy
 - set apache and php
+- set glusterfs with storage
 - set high availability with galera cluster and mariadb
 
 ### Design High Availability 
