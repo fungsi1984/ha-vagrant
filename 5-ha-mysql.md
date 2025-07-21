@@ -586,6 +586,19 @@ default_storage_engine=InnoDB     # Required for Galera
 innodb_autoinc_lock_mode=2        # Required for Galera
 ```
 
+### when galera fail, [ERROR] WSREP: It may not be safe to bootstrap 
+```
+sudo sed -i 's/safe_to_bootstrap: 0/safe_to_bootstrap: 1/' /var/lib/mysql/grastate.dat
+sudo sed -i 's/seqno: -1/seqno: 1/' /var/lib/mysql/grastate.dat
+sudo rm -f /var/lib/mysql/galera.cache
+sudo rm -f /var/lib/mysql/gvwstate.dat
+sudo mysql -p -e "SHOW STATUS LIKE 'wsrep_cluster%';"
+
+```
+
+
+
+
 ### utilities 
 - sudo tail -n 50 /var/log/mysql/error.log
 - sudo apt purge mysql-server mysql-client mysql-common mysql-server-core-* mysql-client-core-*
